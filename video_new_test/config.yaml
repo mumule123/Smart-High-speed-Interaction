@@ -1,0 +1,256 @@
+# =============================================================================
+# 设备操作检测系统配置文件 V3.0
+# =============================================================================
+# 说明: 无
+# 更新: 2025-08-26
+# 格式: YAML
+# =============================================================================
+
+# AI模型相关路径配置
+models:
+  # 目标检测模型路径 - 用于识别电力设备
+  detection_model_path: "model/best.pt"
+  
+  # 人体姿态检测模型路径 - 用于识别人员手部关键点  
+  pose_model_path: "model/yolo11l-pose.pt"
+  
+  # YOLOv11分割模型路径 - 用于获取设备可交互区域
+  # 如果不存在，系统会自动下载预训练的YOLOv11分割模型
+  segmentation_model_path: "model/yolo11n-seg.pt"
+
+# 各种阈值参数
+thresholds:
+  # 操作判断距离阈值(像素) - 范围: 50-300
+  # 说明: 当手部中心与设备中心距离小于此值时认为正在操作
+  operation_distance_threshold: 120.0
+  
+  # 目标检测置信度阈值 - 范围: 0.1-0.9  
+  # 说明: 低于此值的检测结果将被忽略
+  detection_confidence_threshold: 0.3
+  
+  # 关键点置信度阈值 - 范围: 0.1-0.9
+  # 说明: 低于此值的关键点被认为无效
+  keypoint_confidence_threshold: 0.3
+  
+  # 固定坐标设备默认置信度 - 范围: 0.1-1.0
+  # 说明: 当检测失败时使用预设坐标的置信度
+  fixed_coordinate_confidence: 0.5
+
+# 手部中心点计算权重配置
+# 说明: 两个手腕关键点的权重，用于计算手部中心位置
+# 公式: center = left_wrist * left_wrist_weight + right_wrist * right_wrist_weight
+hand_center_weights:
+
+  left_wrist_weight: 0.5  # 左手腕权重
+  right_wrist_weight: 0.5  # 右手腕权重
+
+# 设备位置缓存配置
+# 动态缓存机制用于在设备被遮挡时提供位置回退
+device_cache:
+  # 是否启用设备位置缓存 - true/false
+  enabled: true
+  
+  # 缓存最大存活时间(秒) - 范围: 1-60
+  # 说明: 超过此时间的缓存将被清理，与视频帧率无关
+  max_age_seconds: 31.0
+  
+  # 最低缓存置信度阈值 - 范围: 0.3-0.9
+  # 只有高于此置信度的检测结果才会被缓存
+  min_confidence_to_cache: 0.5
+  
+  # 位置更新平滑系数 - 范围: 0.5-0.95
+  # 用于平滑缓存位置更新，越大越平滑
+  # 公式: new_pos = old_pos * smoothing + detected_pos * (1 - smoothing)
+  cache_update_smoothing: 0.8
+
+# 视频处理相关参数
+video_processing:
+  # 回退帧率 - 范围: 1-240  
+  # 当视频文件帧率无效或无法读取时使用的回退值
+  # 正常情况下系统会自动从视频文件中读取真实帧率
+  fps_assumption: 30
+
+  # 进度报告间隔(帧数) - 范围: 10-100
+  # 说明: 每处理多少帧显示一次进度，影响日志频率
+  progress_report_interval: 30
+  
+  # 操作集数间隔阈值(秒) - 范围: 0.5-10.0
+  # 说明: 超过此时间间隔的操作被认为是新的操作集数
+  # 2秒适合大多数场景，可根据操作节奏调整
+  episode_gap_threshold: 2.0
+  
+  video_codec: "mp4v"  # 输出视频编码格式 - mp4v, XVID, H264
+  output_video_filename: "operation_analysis.mp4"  # 输出标注视频文件名
+
+# 设备分割分析相关配置
+segmentation_analysis:
+  # 分割掩码透明度 - 范围: 0.1-0.8
+  mask_alpha: 0.3
+  
+  # 可交互区域提取策略 - "top_surface", "distance_transform", "combined" 
+  interaction_extraction_method: "combined"
+  
+  # 顶部交互区域比例 - 范围: 0.1-0.7 
+  # 设备顶部多少比例作为主要交互区域
+  top_interaction_ratio: 0.3
+  
+  # 可接触点最大数量 - 范围: 1-10
+  max_accessible_points: 5
+  
+  # 交互性得分权重配置
+  interaction_score_weights:
+    area_weight: 0.4      # 面积权重
+    solidity_weight: 0.4  # 实体性权重  
+    shape_weight: 0.2     # 形状权重
+
+# 可视化显示参数
+# 说明: 控制在输出视频中的绘制效果  
+# 颜色格式: 支持RGB列表、16进制字符串、颜色名称
+#   - RGB列表: [255, 0, 0] 表示红色
+#   - 16进制: "#FF0000" 或 "FF0000" 表示红色
+#   - 颜色名称: "red", "green", "blue" 等
+visualization:
+
+  device_center_color: "green"  # 设备中心点颜色
+  hand_center_color: "red"  # 手部中心点颜色
+  operation_line_color: "cyan"  # 操作连线颜色
+  operation_text_color: "#00FFFF"  # 操作文字颜色
+  
+  device_center_radius: 8  # 设备中心点绘制半径(像素)
+  hand_center_radius: 10  # 手部中心点绘制半径(像素)
+  keypoint_radius: 6  # 关键点绘制半径(像素)
+  operation_line_thickness: 2  # 操作连线粗细(像素)
+
+# 手部关键点颜色配置
+# 颜色格式: 支持RGB列表、16进制、颜色名称
+hand_colors:
+
+  left_wrist: [0, 255, 255]  # 左手腕关键点颜色
+  right_wrist: "#FFFF00"  # 右手腕关键点颜色
+
+# COCO格式人体关键点索引配置
+# 警告: 请勿随意修改这些索引值，它们对应COCO数据集标准
+keypoint_indices:
+
+  left_wrist: 9  # COCO格式中左手腕关键点索引
+  right_wrist: 10  # COCO格式中右手腕关键点索引
+
+# 字体相关设置
+font_settings:
+  # 中文字体文件路径 - 用于在视频上绘制中文标注
+  # 说明: 如果字体文件不存在，会自动回退到默认字体
+  chinese_font_path: "font/SourceHan/OTF/SimplifiedChinese/SourceHanSansSC-Normal.otf"
+  
+  # 正常字体大小 - 范围: 12-48
+  font_size_normal: 20
+  
+  # 小字体大小 - 范围: 10-36  
+  font_size_small: 16
+
+# 文件路径配置
+file_paths:
+  # 固定设备坐标信息文件路径
+  # 说明: 当实时检测失败时的回退坐标文件
+  fixed_coords_file: "datasets/detection_info_254.txt"
+  
+  # 设备类别定义文件路径
+  # 说明: 包含所有可检测的设备类别列表
+  classes_file: "datasets/classes.txt"
+  
+  # 默认测试视频路径 - 当未指定视频时使用
+  default_video_path: "datasets/测试所有动作/test01.mp4"
+  
+  # 默认输出结果目录 - 存放分析结果和标注视频
+  default_output_dir: "analysis_resultsv3"
+  
+  # 设备操作统计CSV文件名
+  stats_csv_filename: "device_operation_stats.csv"
+  
+  # 分析报告JSON文件名
+  analysis_report_filename: "analysis_report.json"
+
+# 设备检测相关配置
+device_detection:
+  # 人员类别ID - 在目标检测中过滤掉人员检测结果
+  # 说明: 因为使用专门的姿态检测模型检测人员
+  person_class_id: 3
+  
+  # 是否启用固定坐标回退 - true/false
+  # 说明: 当实时检测失败时是否使用预设的固定坐标
+  fixed_coordinate_fallback_enabled: true
+  
+  # 缺失设备边界框估算尺寸(像素) - 范围: 20-200  
+  # 说明: 用于根据中心点估算边界框大小
+  missing_device_estimation_size: 50
+
+# 所有可检测设备类别列表
+# 说明: 与模型训练时的类别对应，请勿随意修改顺序
+all_classes:
+  - "一次性白布"
+  - "万用表" 
+  - "主断路器"
+  - "人"
+  - "受电弓升起"
+  - "受电弓合拢"
+  - "喇叭"
+  - "固定钳"
+  - "工具桶"
+  - "工具箱"
+  - "扳手"
+  - "抹布"
+  - "毛刷"
+  - "清洁剂"
+  - "皮尺"
+  - "砝码"
+  - "砝码挂钩"
+  - "红标牌"
+  - "肥皂水"
+  - "蓝标牌"
+  - "螺丝刀"
+  - "记秒器"
+  - "避雷器"
+  - "钳子"
+  - "锉刀"
+  - "集油桶"
+  - "马克笔"
+  - "高压电压互感器"
+  - "高压电缆总成"
+  - "高压连接器"
+  - "高压隔离开关"
+
+# 设备类别名称到操作类型的映射
+# 说明: 将检测到的设备名称映射为具体的操作类型
+device_class_mappings:
+  "主断路器": "主断路器检查"
+  "受电弓合拢": "受电弓检查"
+  "受电弓升起": "受电弓实验"
+  "避雷器": "避雷器检查"
+  "高压电压互感器": "高压电压互感器检查"
+  "高压电缆总成": "高压电缆总成顶部部分检查"
+  "高压连接器": "高压连接器检查"
+  "高压隔离开关": "高压隔离开关检查"
+
+# 默认设备类别ID到操作类型映射
+# 说明: 作为回退选项，当类别文件读取失败时使用
+default_device_classes:
+  2: "主断路器检查"
+  4: "受电弓实验"
+  5: "受电弓检查"
+  22: "避雷器检查"
+  27: "高压电压互感器检查"
+  28: "高压电缆总成顶部部分检查"
+  29: "高压连接器检查"
+  30: "高压隔离开关检查"
+
+# 用于检测结果处理的设备类别映射
+# 说明: 与device_class_mappings功能相同，用于不同的处理阶段
+device_mapping:
+  "主断路器": "主断路器检查"
+  "受电弓合拢": "受电弓检查"
+  "受电弓升起": "受电弓实验"
+  "避雷器": "避雷器检查"
+  "高压电压互感器": "高压电压互感器检查"
+  "高压电缆总成": "高压电缆总成顶部部分检查"
+  "高压连接器": "高压连接器检查"
+  "高压隔离开关": "高压隔离开关检查"
+  

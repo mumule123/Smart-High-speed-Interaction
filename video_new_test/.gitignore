@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+.env
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+
+# Models (通常模型文件很大，不建议直接上传到普通Git仓库，除非使用Git LFS)
+model/*.pt
+model/*.onnx
+
+# Datasets & Videos (通常不上传大的视频文件)
+datasets/**/*.mp4
+datasets/**/*.avi
+datasets/**/*.mov
+
+# Outputs & Results
+results/
+results_test/
+results*/
+analysis_resultsv3/
+*.csv
+*.json
+!datasets/object.json
+!datasets/classes.txt
+
+# System
+.DS_Store
+Thumbs.db

@@ -1,0 +1,24 @@
+cd /t-3058-2/project/yolov11/total_test_video && python operation_detection.py --video datasets/走路.mp4 --output result/走路_analysis
+
+
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV4.py  --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/测试所有动作/test01.mp4 --output /t-3058/pythonProject02/yoloV11/video_new_test/results1
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV4.py  --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/单人操作/单人操作.mp4 --output /t-3058/pythonProject02/yoloV11/video_new_test/results2
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py  --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/双人操作/双人操作.mp4 --output /t-3058/pythonProject02/yoloV11/video_new_test/results3
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py  --video '/t-3058/pythonProject02/yoloV11/video_new_test/datasets/往回走+操作受电弓/往回走+操作受电弓.mp4' --output /t-3058/pythonProject02/yoloV11/video_new_test/results4
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/走路/走路.mp4 --output /t-3058/pythonProject02/yoloV11/video_new_test/results5
+
+
+
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py  --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/测试所有动作/test01.mp4 --output /t-3058/pythonProject02/yoloV11/video_new_test/results
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py  --video '/t-3058/pythonProject02/yoloV11/video_new_test/datasets/往回走+操作受电弓/往回走+操作受电弓.mp4' --output /t-3058/pythonProject02/yoloV11/video_new_test/results4
+
+
+
+
+python /t-3058/pythonProject02/yoloV11/video_new_test/main/detectV5_json.py  --video /t-3058/pythonProject02/yoloV11/video_new_test/datasets/202508121022.mp4  --output /t-3058/pythonProject02/yoloV11/video_new_test/results6
+
